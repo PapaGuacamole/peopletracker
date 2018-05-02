@@ -132,32 +132,20 @@ downloadFile(fileName, [[http://api.achaea.com/characters.json]])</script>
 
 --[[
 
+v1.1	Defined ptrack.people at the top of the People Tracker script so it will install!
 v1.0	Initial release, based on initial code and idea from Sarren
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ]]--</script>
             <eventHandlerList/>
         </Script>
         <Script isActive="yes" isFolder="no">
-            <name>Person Tracker</name>
+            <name>People Tracker</name>
             <packageName></packageName>
             <script>ptrack = ptrack or {}
 ptrack.debug = false			-- display debug info
 ptrack.interval = 60			-- number of seconds between checks
-ptrack.version = &quot;1.0&quot;		-- version number
+ptrack.version = &quot;1.1&quot;		-- version number
+ptrack.people = ptrack.people or {}
 local _sep_ = &quot;/&quot;
 if string.char(getMudletHomeDir():byte()) == &quot;/&quot; then
   _sep_ = &quot;/&quot;
@@ -314,6 +302,6 @@ ptrack.registerEventHandler()</script>
     </ScriptPackage>
     <KeyPackage/>
     <HelpPackage>
-        <helpURL/>
+        <helpURL></helpURL>
     </HelpPackage>
 </MudletPackage>
