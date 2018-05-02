@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+    <TriggerPackage>
+        <Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+            <name>Person Tracker - Prompt catch</name>
+            <script>if ptrack.debug then
+  ptrack.echo(&quot;Polling...&quot;)
+end
+ptrack.paused = true
+if ptrack.pauseTimer then
+  killTimer(ptrack.pauseTimer)
+end
+ptrack.pauseTimer =
+  tempTimer(
+    (ptrack.interval or 60) - getNetworkLatency(),
+    function()
+      ptrack.paused = nil
+      killTimer(ptrack.pauseTimer)
+    end
+  )
+local _sep_ = &quot;/&quot;
+if string.char(getMudletHomeDir():byte()) == &quot;/&quot; then
+  _sep_ = &quot;/&quot;
+else
+  _sep_ = &quot;\\&quot;
+end
+local fileName = getMudletHomeDir() .. _sep_ .. [[playerreport.json]]
+downloadFile(fileName, [[http://api.achaea.com/characters.json]])</script>
+            <triggerType>0</triggerType>
+            <conditonLineDelta>0</conditonLineDelta>
+            <mStayOpen>0</mStayOpen>
+            <mCommand></mCommand>
+            <packageName></packageName>
+            <mFgColor>#ff0000</mFgColor>
+            <mBgColor>#ffff00</mBgColor>
+            <mSoundFile></mSoundFile>
+            <colorTriggerFgColor>#000000</colorTriggerFgColor>
+            <colorTriggerBgColor>#000000</colorTriggerBgColor>
+            <regexCodeList>
+                <string>Password correct</string>
+                <string>return ptrack.enabled and true or false</string>
+                <string>return not ptrack.paused and true or false</string>
+            </regexCodeList>
+            <regexCodePropertyList>
+                <integer>7</integer>
+                <integer>4</integer>
+                <integer>4</integer>
+            </regexCodePropertyList>
+        </Trigger>
+        <Trigger isActive="yes" isFolder="no" isTempTrigger="no" isMultiline="yes" isPerlSlashGOption="no" isColorizerTrigger="no" isFilterTrigger="no" isSoundTrigger="no" isColorTrigger="no" isColorTriggerFg="no" isColorTriggerBg="no">
+            <name>Person Tracker - Login trigger</name>
+            <script>ptrack.load()</script>
+            <triggerType>0</triggerType>
+            <conditonLineDelta>0</conditonLineDelta>
+            <mStayOpen>0</mStayOpen>
+            <mCommand></mCommand>
+            <packageName></packageName>
+            <mFgColor>#ff0000</mFgColor>
+            <mBgColor>#ffff00</mBgColor>
+            <mSoundFile></mSoundFile>
+            <colorTriggerFgColor>#000000</colorTriggerFgColor>
+            <colorTriggerBgColor>#000000</colorTriggerBgColor>
+            <regexCodeList>
+                <string>Password correct</string>
+                <string>Password correct. Welcome to Achaea.</string>
+            </regexCodeList>
+            <regexCodePropertyList>
+                <integer>2</integer>
+                <integer>3</integer>
+            </regexCodePropertyList>
+        </Trigger>
+    </TriggerPackage>
+    <TimerPackage/>
+    <AliasPackage>
+        <Alias isActive="yes" isFolder="no">
+            <name>Show list of people</name>
+            <script>ptrack.list()</script>
+            <command></command>
+            <packageName></packageName>
+            <regex>^peep(s|list)$</regex>
+        </Alias>
+        <Alias isActive="yes" isFolder="no">
+            <name>Add person</name>
+            <script>ptrack.add(matches[2])</script>
+            <command></command>
+            <packageName></packageName>
+            <regex>^peepadd (\w+)$</regex>
+        </Alias>
+        <Alias isActive="yes" isFolder="no">
+            <name>Remove person</name>
+            <script>ptrack.remove(matches[2])</script>
+            <command></command>
+            <packageName></packageName>
+            <regex>^peepdel (\w+)$</regex>
+        </Alias>
+        <Alias isActive="yes" isFolder="no">
+            <name>Save people list</name>
+            <script>ptrack.save()</script>
+            <command></command>
+            <packageName></packageName>
+            <regex>^peepsave$</regex>
+        </Alias>
+        <Alias isActive="yes" isFolder="no">
+            <name>Load people list</name>
+            <script>ptrack.load()</script>
+            <command></command>
+            <packageName></packageName>
+            <regex>^peepload$</regex>
+        </Alias>
+        <Alias isActive="yes" isFolder="no">
+            <name>Enable / disable people tracker</name>
+            <script>ptrack.toggle(matches[2] or nil)</script>
+            <command></command>
+            <packageName></packageName>
+            <regex>^peep ?(on|off)?$$</regex>
+        </Alias>
+        <Alias isActive="yes" isFolder="no">
+            <name>Version</name>
+            <script>ptrack.echo(&quot;Version &quot;..ptrack.version)</script>
+            <command></command>
+            <packageName></packageName>
+            <regex>^peepversion$</regex>
+        </Alias>
+    </AliasPackage>
+    <ActionPackage/>
+    <ScriptPackage>
+        <Script isActive="no" isFolder="no">
+            <name>People Tracker Release Notes</name>
+            <packageName></packageName>
+            <script>-- RELEASE NOTES
+
+--[[
+
+v1.0	Initial release, based on initial code and idea from Sarren
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]--</script>
+            <eventHandlerList/>
+        </Script>
+        <Script isActive="yes" isFolder="no">
+            <name>Person Tracker</name>
+            <packageName></packageName>
+            <script>ptrack = ptrack or {}
+ptrack.debug = false			-- display debug info
+ptrack.interval = 60			-- number of seconds between checks
+ptrack.version = &quot;1.0&quot;		-- version number
+local _sep_ = &quot;/&quot;
+if string.char(getMudletHomeDir():byte()) == &quot;/&quot; then
+  _sep_ = &quot;/&quot;
+else
+  _sep_ = &quot;\\&quot;
+end
+
+function ptrack.playerreport(_, filepath)
+  if not (filepath == getMudletHomeDir() .. _sep_ .. [[playerreport.json]]) then
+    return
+  end
+	ptrack.gui:hide()
+  io.input(filepath)
+  local people = yajl.to_value(io.read(&quot;*all&quot;))
+  local persons = {}
+  local str = &quot;&quot;
+  for _, person in ipairs(people.characters) do
+    if table.contains(ptrack.people, person.name) then
+      table.insert(persons, #persons + 1, person.name)
+      if #persons == 1 then
+        str = person.name
+      else
+        str = str .. &quot;&lt;br&gt;&quot; .. person.name
+      end
+    end
+  end
+	if not (#persons == 0) then
+		if ptrack.debug then ptrack.echo(&quot;Found at least one person&quot;) end
+    ptrack.gui:show()
+    ptrack.updateDisplay(str)
+  end
+end
+
+function ptrack.registerEventHandler()
+  if not ptrack.alreadyRun then
+    registerAnonymousEventHandler(&quot;sysDownloadDone&quot;, &quot;ptrack.playerreport&quot;)
+    ptrack.createGUI()
+    ptrack.gui:hide()
+    ptrack.alreadyRun = true
+  end
+end
+
+function ptrack.list()
+  if #ptrack.people == 0 then
+    ptrack.echo(&quot;Not watching for any people&quot;)
+  else
+    if ptrack.enabled then
+      ptrack.echo(&quot;Watching for &quot; .. #ptrack.people .. &quot; people:&quot;)
+    else
+      ptrack.echo(
+        &quot;People watching is &lt;red&gt;DISABLED&lt;reset&gt;, but would be watching for &quot; ..
+        #ptrack.people ..
+        &quot; people:&quot;
+      )
+    end
+    for _, name in ipairs(ptrack.people) do
+      ptrack.bullet(name)
+      echo((&quot; &quot;):rep(10 - #name))
+      cechoLink(&quot;&lt;DarkSlateGray&gt;Unwatch&lt;reset&gt;&quot;, [[ptrack.remove(&quot;]] .. name .. [[&quot;)]], &quot;Unwatch&quot;, true)
+    end
+  end
+end
+
+function ptrack.echo(str)
+  cecho(&quot;\n&lt;OrangeRed&gt;[&lt;white&gt;PTrack&lt;OrangeRed&gt;]:&lt;reset&gt; &quot; .. str)
+end
+
+function ptrack.bullet(str)
+  cecho(&quot;\n&lt;OrangeRed&gt;:::&lt;reset&gt; &quot; .. str)
+end
+
+function ptrack.add(name)
+  name = name:lower():title()
+  if not table.contains(ptrack.people, name) then
+    table.insert(ptrack.people, #ptrack.people + 1, name)
+    table.sort(ptrack.people)
+    ptrack.echo(&quot;Added &quot; .. name .. &quot; to tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;)
+  else
+    ptrack.echo(name .. &quot; already being watched for&quot;)
+  end
+end
+
+function ptrack.remove(name)
+  name = name:lower():title()
+  if table.contains(ptrack.people, name) then
+    table.remove(ptrack.people, table.index_of(ptrack.people, name))
+    table.sort(ptrack.people)
+    ptrack.echo(
+      &quot;Removed &quot; .. name .. &quot; from tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;
+    )
+  else
+    ptrack.echo(&quot;Was not watching for &quot; .. name)
+  end
+end
+
+function ptrack.save(silent)
+  table.save(getMudletHomeDir() .. _sep .. &quot;ptrack.lua&quot;, ptrack.people)
+  if not ((silent or false) == true) then
+    ptrack.echo(&quot;People watch list saved&quot;)
+  end
+end
+
+function ptrack.load(silent)
+  table.load(getMudletHomeDir() .. _sep .. &quot;ptrack.lua&quot;, ptrack.people)
+  if not ((silent or false) == true) then
+    ptrack.echo(&quot;People watch list loaded&quot;)
+  end
+end
+
+function ptrack.createGUI()
+  ptrack.gui =
+    Geyser.Label:new(
+      {
+        name = &quot;ptrack.gui&quot;,
+        x = &quot;40%&quot;,
+        y = &quot;20%&quot;,
+        height = &quot;10%&quot;,
+        width = &quot;15%&quot;,
+        fgColor = &quot;OrangeRed&quot;,
+      }
+    )
+  ptrack.gui:setStyleSheet([[
+  	background-color: rgba(64,80,32,100%);
+		font-weight:600;
+	]])
+  ptrack.gui:setFontSize(10)
+  ptrack.gui:echo(&quot;&lt;center&gt;People Watcher&lt;/center&gt;&quot;)
+end
+
+function ptrack.updateDisplay(str)
+  ptrack.gui:echo(&quot;&lt;center&gt;&quot; .. str)
+end
+
+function ptrack.toggle(state)
+  if state == nil then
+    ptrack.enabled = not ptrack.enabled
+  elseif type(state) == &quot;boolean&quot; then
+    ptrack.enabled = state
+  elseif type(state) == &quot;string&quot; then
+    ptrack.enabled = table.contains({&quot;true&quot;, &quot;yes&quot;, &quot;on&quot;}, state)
+  end
+  ptrack.echo(
+    (ptrack.enabled and &quot;&lt;green&gt;Will&lt;reset&gt;&quot; or &quot;&lt;red&gt;Won't&lt;reset&gt;&quot;) .. &quot; watch for people.&quot;
+  )
+  if not ptrack.enabled then
+    ptrack.gui:hide()
+  end
+  raiseEvent(&quot;ptrack enabled toggle&quot;)
+end
+
+ptrack.registerEventHandler()</script>
+            <eventHandlerList/>
+        </Script>
+    </ScriptPackage>
+    <KeyPackage/>
+    <HelpPackage>
+        <helpURL/>
+    </HelpPackage>
+</MudletPackage>
