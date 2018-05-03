@@ -132,6 +132,7 @@ downloadFile(fileName, [[http://api.achaea.com/characters.json]])</script>
 
 --[[
 
+v1.3	Uses ndb colouring when listing people, if available
 v1.2	When adding / removing people from watch list, immediately polls
 v1.1	Defined ptrack.people at the top of the People Tracker script so it will install!
 v1.0	Initial release, based on initial code and idea from Sarren
@@ -143,9 +144,12 @@ v1.0	Initial release, based on initial code and idea from Sarren
             <name>People Tracker</name>
             <packageName></packageName>
             <script>ptrack = ptrack or {}
-ptrack.debug = false			-- display debug info
-ptrack.interval = 60			-- number of seconds between checks
-ptrack.version = &quot;1.2&quot;		-- version number
+-- display debug info
+ptrack.debug = false
+-- number of seconds between checks
+ptrack.interval = 60
+-- version number
+ptrack.version = &quot;1.3&quot;
 ptrack.people = ptrack.people or {}
 local _sep_ = &quot;/&quot;
 if string.char(getMudletHomeDir():byte()) == &quot;/&quot; then
@@ -158,7 +162,7 @@ function ptrack.playerreport(_, filepath)
   if not (filepath == getMudletHomeDir() .. _sep_ .. [[playerreport.json]]) then
     return
   end
-	ptrack.gui:hide()
+  ptrack.gui:hide()
   io.input(filepath)
   local people = yajl.to_value(io.read(&quot;*all&quot;))
   local persons = {}
@@ -173,8 +177,10 @@ function ptrack.playerreport(_, filepath)
       end
     end
   end
-	if not (#persons == 0) then
-		if ptrack.debug then ptrack.echo(&quot;Found at least one person&quot;) end
+  if not (#persons == 0) then
+    if ptrack.debug then
+      ptrack.echo(&quot;Found at least one person&quot;)
+    end
     ptrack.gui:show()
     ptrack.updateDisplay(str)
   end
@@ -202,10 +208,13 @@ function ptrack.list()
         &quot; people:&quot;
       )
     end
+    local n = &quot;&quot;
     for _, name in ipairs(ptrack.people) do
-      ptrack.bullet(name)
+      ptrack.bullet(ptrack.highlightName(name))
       echo((&quot; &quot;):rep(10 - #name))
-      cechoLink(&quot;&lt;DarkSlateGray&gt;Unwatch&lt;reset&gt;&quot;, [[ptrack.remove(&quot;]] .. name .. [[&quot;)]], &quot;Unwatch&quot;, true)
+      cechoLink(
+        &quot;&lt;DarkSlateGray&gt;Unwatch&lt;reset&gt;&quot;, [[ptrack.remove(&quot;]] .. name .. [[&quot;)]], &quot;Unwatch&quot;, true
+      )
     end
   end
 end
@@ -223,10 +232,10 @@ function ptrack.add(name)
   if not table.contains(ptrack.people, name) then
     table.insert(ptrack.people, #ptrack.people + 1, name)
     table.sort(ptrack.people)
-    ptrack.echo(&quot;Added &quot; .. name .. &quot; to tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;)
-		ptrack.paused = nil
+    ptrack.echo(&quot;Added &quot; .. ptrack.highlightName(name) .. &quot; to tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;)
+    ptrack.paused = nil
   else
-    ptrack.echo(name .. &quot; already being watched for&quot;)
+    ptrack.echo(ptrack.highlightName(name) .. &quot; already being watched for&quot;)
   end
 end
 
@@ -236,11 +245,11 @@ function ptrack.remove(name)
     table.remove(ptrack.people, table.index_of(ptrack.people, name))
     table.sort(ptrack.people)
     ptrack.echo(
-      &quot;Removed &quot; .. name .. &quot; from tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;
+      &quot;Removed &quot; .. ptrack.highlightName(name) .. &quot; from tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;
     )
-		ptrack.paused = nil
+    ptrack.paused = nil
   else
-    ptrack.echo(&quot;Was not watching for &quot; .. name)
+    ptrack.echo(&quot;Was not watching for &quot; .. ptrack.highlightName(name))
   end
 end
 
@@ -296,7 +305,21 @@ function ptrack.toggle(state)
   if not ptrack.enabled then
     ptrack.gui:hide()
   end
+  ptrack.paused = nil
   raiseEvent(&quot;ptrack enabled toggle&quot;)
+end
+
+function ptrack.highlightName(name)
+  -- no namedb, no highlighting..
+  if ptrack.disablenamedb or not ndb then
+    return txt
+  end
+  local result = name
+  local color = ndb.getcolor(name) or &quot;unknown&quot;
+  if not (color == &quot;unknown&quot;) then
+    result = color .. name .. &quot;&lt;reset&gt;&quot;
+  end
+  return result
 end
 
 ptrack.registerEventHandler()</script>
