@@ -132,6 +132,7 @@ downloadFile(fileName, [[http://api.achaea.com/characters.json]])</script>
 
 --[[
 
+v1.2	When adding / removing people from watch list, immediately polls
 v1.1	Defined ptrack.people at the top of the People Tracker script so it will install!
 v1.0	Initial release, based on initial code and idea from Sarren
 
@@ -144,7 +145,7 @@ v1.0	Initial release, based on initial code and idea from Sarren
             <script>ptrack = ptrack or {}
 ptrack.debug = false			-- display debug info
 ptrack.interval = 60			-- number of seconds between checks
-ptrack.version = &quot;1.1&quot;		-- version number
+ptrack.version = &quot;1.2&quot;		-- version number
 ptrack.people = ptrack.people or {}
 local _sep_ = &quot;/&quot;
 if string.char(getMudletHomeDir():byte()) == &quot;/&quot; then
@@ -223,6 +224,7 @@ function ptrack.add(name)
     table.insert(ptrack.people, #ptrack.people + 1, name)
     table.sort(ptrack.people)
     ptrack.echo(&quot;Added &quot; .. name .. &quot; to tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;)
+		ptrack.paused = nil
   else
     ptrack.echo(name .. &quot; already being watched for&quot;)
   end
@@ -236,6 +238,7 @@ function ptrack.remove(name)
     ptrack.echo(
       &quot;Removed &quot; .. name .. &quot; from tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;
     )
+		ptrack.paused = nil
   else
     ptrack.echo(&quot;Was not watching for &quot; .. name)
   end
