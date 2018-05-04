@@ -132,6 +132,7 @@ downloadFile(fileName, [[http://api.achaea.com/characters.json]])</script>
 
 --[[
 
+v1.4	Watch list saved when adding / removing people
 v1.3	Uses ndb colouring when listing people, if available
 v1.2	When adding / removing people from watch list, immediately polls
 v1.1	Defined ptrack.people at the top of the People Tracker script so it will install!
@@ -149,7 +150,7 @@ ptrack.debug = false
 -- number of seconds between checks
 ptrack.interval = 60
 -- version number
-ptrack.version = &quot;1.3&quot;
+ptrack.version = &quot;1.4&quot;
 ptrack.people = ptrack.people or {}
 local _sep_ = &quot;/&quot;
 if string.char(getMudletHomeDir():byte()) == &quot;/&quot; then
@@ -233,6 +234,7 @@ function ptrack.add(name)
     table.insert(ptrack.people, #ptrack.people + 1, name)
     table.sort(ptrack.people)
     ptrack.echo(&quot;Added &quot; .. ptrack.highlightName(name) .. &quot; to tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;)
+		ptrack.save(true)
     ptrack.paused = nil
   else
     ptrack.echo(ptrack.highlightName(name) .. &quot; already being watched for&quot;)
@@ -247,6 +249,7 @@ function ptrack.remove(name)
     ptrack.echo(
       &quot;Removed &quot; .. ptrack.highlightName(name) .. &quot; from tracker, now watching for &quot; .. #ptrack.people .. &quot; people&quot;
     )
+		ptrack.save(true)
     ptrack.paused = nil
   else
     ptrack.echo(&quot;Was not watching for &quot; .. ptrack.highlightName(name))
